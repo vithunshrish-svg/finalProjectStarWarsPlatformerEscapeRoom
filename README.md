@@ -3,7 +3,7 @@
 
 ## What idea(s) do you have for your final project?
 
-A Star wars themed 2d platformer or escape room using dictionaries and series of loops and algorithms.
+A Financial literacy themed 2d escape room using dictionaries and series of loops and algorithms. Uses dictionaries to store rooms and data, gameplay loops, and conditions for decision making. Pygame.
 
 ## If you plan to collaborate with one or two classmates, what are their names?
 
