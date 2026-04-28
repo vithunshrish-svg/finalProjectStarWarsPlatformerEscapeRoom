@@ -75,6 +75,34 @@ QUESTIONS
 
 question_pool = [ ("Income $3000, expenses $1800. Left?", ["1200", "1000", "1500"], "1200"), ("Best long-term choice?", ["Save", "Invest", "Spend"], "Invest"), ("Emergency fund should cover?", ["3-6 months", "1 week", "1 year"], "3-6 months"), ("Paying debt on time improves?", ["Credit Score", "Debt", "Spending"], "Credit Score") ]
 
+# rooms = {"budget": {"question": "Income $3000, expenses $1800. Left?","choices": ["1200", "1000", "1500"],"answer": "1200"},"credit": {"question": "Paying debt on time improves?","choices": ["Credit Score", "Debt", "Spending"],"answer": "Credit Score"},"invest": {"question": "Better long-term: Save or Invest?","choices": ["Save", "Invest", "Spend"],"answer": "Invest"}}
+
+# def ask_room(room_name):
+    # room = rooms[room_name]
+
+    # print("\n--- Room: ", room_name.upper(), "---")
+    # print(room["question"])
+
+    # for i in range(len(room["choices"])):
+        # print(str(i+1)+ ". " + room["choices"][i])
+
+        # choice = input("Choose (1-3): ")
+
+        # if choice in ["1", "2", "3"]:
+            # index = int(choice) - 1
+
+            # if room[choices][index] == room["answer"]:
+                # print("Correct!")
+                # return True
+            # else:
+                # print("Wrong!")
+                # return False
+        # else:
+            # print("Invalid input")
+            # return False
+
+# room_name = random.choice(list(rooms.keys()))
+# ask_room(room_name)
 =========================
 
 GAME STATE
