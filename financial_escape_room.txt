@@ -1,0 +1,181 @@
+import pygame
+import random
+import time
+
+pygame.init()
+
+WIDTH, HEIGHT = 900, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Financial Escape Platformer")
+
+clock = pygame.time.Clock()
+font = pygame.font.SysFont("Arial", 18)
+
+question_pool = [("If your income is $3000, and your expenses are $1800. How much left?", ["1200", "1000", "1500"], "1200"),("Best long-term choice?", ["Save", "Invest", "Spend"], "Invest"),("Emergency fund should cover?", ["3-6 months", "1 week", "1 year"], "3-6 months"),("Paying debt on time improves?", ["Credit Score", "Debt", "Spending"], "Credit Score")]
+
+# rooms = {"budget": {"question": "Income $3000, expenses $1800. Left?","choices": ["1200", "1000", "1500"],"answer": "1200"},"credit": {"question": "Paying debt on time improves?","choices": ["Credit Score", "Debt", "Spending"],"answer": "Credit Score"},"invest": {"question": "Better long-term: Save or Invest?","choices": ["Save", "Invest", "Spend"],"answer": "Invest"}}
+
+# def ask_room(room_name):
+    # room = rooms[room_name]
+
+    # print("\n--- Room: ", room_name.upper(), "---")
+    # print(room["question"])
+
+    # for i in range(len(room["choices"])):
+        # print(str(i+1)+ ". " + room["choices"][i])
+
+        # choice = input("Choose (1-3): ")
+
+        # if choice in ["1", "2", "3"]:
+            # index = int(choice) - 1
+
+            # if room[choices][index] == room["answer"]:
+                # print("Correct!")
+                # return True
+            # else:
+                # print("Wrong!")
+                # return False
+        # else:
+            # print("Invalid input")
+            # return False
+
+# room_name = random.choice(list(rooms.keys()))
+# ask_room(room_name)
+
+player = pygame.Rect(50, 500, 40, 50)
+
+score = 0
+has_key = False
+show_question = False
+selected_answer = 0
+
+vel_y = 0
+grav_y = 0
+jump_power = -10
+on_ground = False
+
+level = 1
+max_levels = 3
+
+start_time = time.time()
+time_limit = 60
+
+def create_level():
+    return {"Door": pygame.Rect(800, 500, 60, 60),"Key": pygame.Rect(random.randint(200, 700), 500, 30, 30),"Platform": pygame.Rect(0, 550, 900, 50)}
+
+current_level = create_level()
+
+current_question = None
+
+def generate_question():
+    return random.choice(question_pool)
+
+
+def check_answer(q, choice):
+    global score
+
+    if q[1][choice] == q[2]:
+        score += 15
+        return True
+    else:
+        score -= 10
+        return False
+
+
+def draw_text(text, x, y):
+    img = font.render(text, True, (255,255,255))
+    screen.blit(img, (x, y))
+
+running = True
+
+while running:
+    clock.tick(60)
+    screen.fill((25, 25, 40))
+
+    
+    if time.time() - start_time > time_limit:
+        draw_text("Time's up!", 350, 250)
+        pygame.display.flip()
+        continue
+
+    remainingTime = int(time_limit - (time.time() - start_time))
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        if show_question:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    chosen_answer = (chosen_answer - 1) % 3
+                if event.key == pygame.K_DOWN:
+                    chosen_answer = (chosen_answer + 1) % 3
+                if event.key == pygame.K_RETURN:
+
+                    if check_answer(current_question, chosen_answer):
+                        level += 1
+                        if level > max_levels:
+                            running = False
+                        else:
+                            current_level = create_level()
+                            player.x = 50
+                            player.y = 500
+
+                    show_question = False
+
+    
+    keys = pygame.key.get_pressed()
+
+    if not show_question:
+
+        if keys[pygame.K_LEFT]:
+            player.x -= 5
+        if keys[pygame.K_RIGHT]:
+            player.x += 5
+
+        if keys[pygame.K_SPACE] and on_ground:
+            grav_y = jump_power
+            on_ground = False
+
+    grav_y += 0.5
+    player.y += grav_y
+
+    if player.colliderect(current_level["Platform"]):
+        player.bottom = current_level["Platform"].top
+        grav_y = 0
+        on_ground = True
+
+    if player.colliderect(current_level["Key"]):
+        has_key = True
+
+    if player.colliderect(current_level["Door"]) and has_key and not show_question:
+        current_question = generate_question()
+        show_question = True
+        chosen_answer = 0
+
+    pygame.draw.rect(screen, (0, 200, 0), player)         
+    pygame.draw.rect(screen, (200, 0, 0), current_level["Door"])  
+    pygame.draw.rect(screen, (255, 215, 0), current_level["Key"]) 
+    pygame.draw.rect(screen, (70, 70, 90), current_level["Platform"])
+    
+    draw_text("score: " + str(score), 10, 10)
+    draw_text("level: " + str(level), 10, 40)
+    draw_text("time: " + str(remainingTime), 10, 70)
+
+    if show_question:
+        pygame.draw.rect(screen, (0,0,0), (150,150,600,300))
+
+        draw_text(current_question[0], 170, 180)
+
+        for i in range(3):
+            color = (0,255,0) if i == chosen_answer else (255,255,255)
+            img = font.render(current_question[1][i], True, color)
+            screen.blit(img, (200, 250 + i*40))
+
+        draw_text("Use up and down keys to select choices + click Enter or Return", 200, 380)
+
+    pygame.display.flip()
+
+pygame.quit()
+
+
